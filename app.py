@@ -1,8 +1,12 @@
-from re import T
+import faulthandler, sys, signal
+faulthandler.enable(file=sys.stderr, all_threads=True)
+
+import os
+os.environ["STREAMLIT_LOG_LEVEL"] = "debug"
+
 import streamlit as st
 import subprocess
 import sys
-import os
 import time
 from pathlib import Path
 import pandas as pd
@@ -11,6 +15,28 @@ from auth import is_logged_in, show_login_page, show_user_info, login_required
 import csv
 from typing import Any, Dict, List
 import pandas as _pd
+from PIL import Image
+
+options = {
+    'giniCoefficient': "Gini Coefficient",
+    'giniCoefficientP': "Gini Coefficient P",
+    'ksStat': "KS Stat",
+    'ksStatP': "KS Stat P",
+    'andersonDarling': "Anderson Darling",
+    'andersonDarlingNullP': "Anderson Darling Null P",
+    'andersonDarlingOtherP': "Anderson Darling Other P",
+    'customConcentrationIntegrateValue': "BCI",
+    #'customConcentrationIntegrateValue': "BCI Integrate Value",
+    'customConcentrationValueNullP': "BCI Null P",
+    'customConcentrationValueOtherP': "BCI Other P",
+    'pearson': "Pearson Correlation"
+}
+
+selections = {}
+
+if st.session_state.get("trigger_rerun", False):
+    st.session_state.trigger_rerun = False
+    st.rerun()
 
 
 def readDataFromCSV3(path: str):
@@ -41,12 +67,7 @@ class ColumnConfig:
 
     @property
     def new_header(self):
-        parts = [p for p in (self.p_val, self.t_val) if p]
-
-        x = [self.p_val, self.t_val]
-        #st.write(x)
-
-        return x
+        return [self.p_val, self.t_val]
 
     def to_dict(self) -> Dict:
         return {
@@ -94,8 +115,6 @@ if x is not None:
         tmp_file_path = tmp_file.name
     df_cols = pd.read_csv(tmp_file_path)
 
-    #step0_button = st.button("Collect Data", use_container_width=True)
-    #if step0_button:
     st.session_state.dataIn = True
     tests_run = {"correlation": True, "gini": True, "ks": True}
 
@@ -109,8 +128,6 @@ if x is not None:
             base_df = pd.read_csv(tmp_file_path)
 
             st.session_state.raw_headers = list(base_df.columns)
-
-            #st.session_state.raw_headers = headers
             st.session_state.raw_headers2 = headers
             st.session_state.raw_headers2.insert(0, "")
             st.session_state.raw_data = data
@@ -122,9 +139,10 @@ if x is not None:
                 configs.append(cfg)
             st.session_state.configs = configs
             st.session_state.num_f = 1
-            #st.session_state.num_f = int(len(headers) / 2) + 1
 
         if st.session_state.get("configs"):
+            #bc1, bc2 = st.columns(2)
+            #with bc1:
             with st.container(border=True):
                 st.subheader("Column Select")
 
@@ -136,9 +154,9 @@ if x is not None:
                 st.session_state.base = st.selectbox(
                     "Base", st.session_state.raw_headers)
 
-                #st.markdown("**ID Column will be formatted as:** "
-                #f"`{ID_INSTRUCTION}`")
-
+                st.subheader("Pairs")
+                new_match = st.button("New Column Set",
+                                      use_container_width=True)
                 header_cols = st.columns([3, 3, 1])
                 header_cols[0].write("Predicted Values")
                 header_cols[1].write("True Values")
@@ -155,104 +173,144 @@ if x is not None:
                                              key=f"t_{cfg.col_num}")
                     c3.write(" ")
                     c3.write(" ")
-                    cfg.use_col = c3.checkbox("Use",
-                                              value=True,
-                                              key=f"use_{cfg.col_num}")
+                    checkbox_key = f"use_{cfg.col_num}"
 
-                new_match = st.button("New Column Set",
-                                      use_container_width=True)
+                    # Initialize checkbox state once (only if missing)
+                    if checkbox_key not in st.session_state:
+                        st.session_state[
+                            checkbox_key] = True  # default checked
+
+                    cfg.use_col = st.session_state[checkbox_key]
+
+                    c3.checkbox("Use", key=checkbox_key)
+
                 if new_match:
+
                     st.session_state.num_f += 1
+                    cfg = st.session_state.configs[st.session_state.num_f]
+                    c1, c2, c3 = st.columns([3, 3, 1])
+                    cfg.p_val = c1.selectbox("Select Column",
+                                             st.session_state.raw_headers2,
+                                             key=f"p_{cfg.col_num}")
+                    cfg.t_val = c2.selectbox("Select Column",
+                                             st.session_state.raw_headers2,
+                                             key=f"t_{cfg.col_num}")
+                    c3.write(" ")
+                    c3.write(" ")
+                    checkbox_key = f"use_{cfg.col_num}"
 
+                    # Initialize checkbox state once (only if missing)
+                    if checkbox_key not in st.session_state:
+                        st.session_state[
+                            checkbox_key] = True  # default checked
+
+                    # Sync cfg.use_col to current checkbox state
+                    cfg.use_col = st.session_state[checkbox_key]
+
+                    # Render the checkbox with the stored state
+                    c3.checkbox("Use", value=cfg.use_col, key=checkbox_key)
+
+                    #st.session_state.trigger_rerun = True
+
+            #with bc2:
             with st.container(border=True):
+
                 st.header("Metrics")
-                corr = st.checkbox("Correlation", value=True)
-                gini = st.checkbox("Gini Coefficient", value=True)
-                ks = st.checkbox("KS Test", value=True)
+                selections['pearson'] = st.checkbox("Correlation", value=True)
+                selections["giniCoefficient"] = st.checkbox("Gini Coefficient",
+                                                            value=True)
+                selections["customConcentrationIntegrateValue"] = st.checkbox(
+                    "BCI", value=True)
+                selections["ksStat"] = st.checkbox("KS Test", value=True)
+                selections["andersonDarling"] = st.checkbox("Anderson Darling",
+                                                            value=True)
 
-            save_and_run = st.button("Save Mapping & Run Analysis V3",
-                                     key="ver3_save")
+                #st.header("Graphs")
+                #ksG = st.checkbox("KS Test ", value=True)
+                #bciG = st.checkbox("BCI ", value=True)
+                #scatter = st.checkbox("Scatterplots ", value=True)
+
+            save_and_run = st.button("Run Analysis", key="ver3_save")
             if save_and_run:
+                print("DEBUG: Save Mapping & Run Analysis V3 button clicked")
                 try:
-                    if corr:
-                        tests_run["correlation"] = True
-                    else:
-                        tests_run["correlation"] = False
 
-                    if gini:
-                        tests_run["gini"] = True
-                    else:
-                        tests_run["gini"] = False
-
-                    if ks:
-                        tests_run["ks"] = True
-                    else:
-                        tests_run["ks"] = False
-
-                    #Build mapped DataFrame
+                    print("DEBUG: raw_data length:",
+                          len(st.session_state.raw_data))
                     raw_df = pd.DataFrame(st.session_state.raw_data,
                                           columns=st.session_state.raw_headers)
+                    print("DEBUG: raw_df shape:", raw_df.shape)
                     keep_cfgs = [
                         cfg for cfg in st.session_state.configs if cfg.use_col
+                        and cfg.t_val is not None and cfg.p_val is not None
                     ]
-                    origs = [cfg.original for cfg in keep_cfgs]
-
                     matches = [
                         keep_cfgs[i].new_header
                         for i in range(st.session_state.num_f)
                     ]
 
-                    #st.write(matches)
+                    for m in range(len(matches)):
+                        if matches[m][0] == "" or matches[m][
+                                1] == "" or matches[m][1] is None or matches[
+                                    m][0] is None:
+                            matches.pop(m)
 
-                    from aiFairnessPipeline.src.ParsePredictionsByDem import iterateOverData4, labelBins, create_bin_function, _loadApproachColumn2, calcMetricOnFullData
+                    #for cfg in st.session_state.configs:
+                    #st.write(cfg.t_val)
+                    #st.write(cfg.use_col)
 
-                    #mapped_df = raw_df[origs].rename(
-                    #columns=dict(zip(origs, new_names)))
+                    #print("DEBUG: matches =", matches)
+                    #st.write("DEBUG: matches =", matches)
+                    invalid = [m for m in matches if None in m or "" in m]
+                    if invalid:
+                        st.error(f"Incomplete column selection: {invalid}")
+                        st.stop()
 
-                    #st.write(st.session_state.sdf)
-                    #WORKING DF
-                    #st.dataframe(raw_df)
+                    from aiFairnessPipeline.src.ParsePredictionsByDem import iterateOverData4
 
                     results_df = iterateOverData4(raw_df, matches,
                                                   st.session_state.sdf,
                                                   st.session_state.base,
                                                   tests_run)
+                    print("DEBUG: results_df shape:", results_df.shape)
 
-                    st.subheader("Bias Scores")
-                    #st.write("WORKING RESULTS!! ")
-                    st.dataframe(results_df)
+                    results_df = results_df.reset_index(drop=True)
 
-                    #is this gini or gini p?
-                    if tests_run["gini"]:
-                        for index, row in results_df.iterrows():
-                            st.metric(label="Gini Coefficient",
-                                      value=round(row["giniCoefficient"], 3))
+                    st.header("Bias Scores")
+                    #st.dataframe(results_df)
 
-                    if tests_run["ks"]:
-                        for index, row in results_df.iterrows():
-                            st.metric(label="KS Test",
-                                      value=round(row["ksStat"], 3))
+                    res_col_count = 0
+                    for index, row in results_df.iterrows():
+                        res_col_count += 1
+                    res_cols = st.columns(res_col_count)
 
-                    if tests_run["correlation"]:
-                        for index, row in results_df.iterrows():
-                            st.metric(label="Pearson Correlation",
-                                      value=round(row["pearson"], 3))
+                    for i in range(len(res_cols)):
+                        with res_cols[i]:
+                            st.subheader(results_df["outcome"].iloc[i])
+
+                    for key in options:
+                        if key in selections and selections[key]:
+                            for index, row in results_df.iterrows():
+                                with res_cols[index]:
+                                    st.metric(label=options[key],
+                                              value=round(row[key], 3))
 
                     original_dir = os.getcwd()
                     os.chdir('aiFairnessPipeline')
                     sys.path.append('.')
                     os.chdir(original_dir)
 
-                    #st.dataframe(mapped_df)
-
-                    #PUT IMAGE AND TABLE CODE BACK IN FROM VERSION 4
+                    print("DEBUG: Analysis complete, loading graphs")
+                    st.header("Graphs")
+                    pic_file = "aiFairnessPipeline/ConcentrationCurve.png"
+                    print("DEBUG: Opening image file:", pic_file)
+                    image = Image.open(pic_file)
+                    st.image(image,
+                             caption="Uploaded PNG",
+                             use_container_width=True)
+                    print("DEBUG: Image displayed successfully")
 
                 except Exception as e:
+                    print("DEBUG: Exception in analysis or graph block:", e)
                     st.error(f"Error saving/running V3 analysis: {e}")
                     st.code(str(e), language='text')
-
-                st.subheader("Graphs")
-                from PIL import Image
-                pic_file = "aiFairnessPipeline/ConcentrationCurve.png"
-                image = Image.open(pic_file)
-                st.image(image, caption="Uploaded PNG", use_container_width=True)

@@ -126,7 +126,7 @@ def main():
     results_df.to_csv('../results/resultsFrom_' + CSV_FILE)
 
 
-def iterateOverData4(dfAllRuns, matches, control, base, tests_run):
+def iterateOverData4old(dfAllRuns, matches, control, base, tests_run):
 
     plot_data = []
     results = []
@@ -231,22 +231,69 @@ def iterateOverData4(dfAllRuns, matches, control, base, tests_run):
         #chiSquaredBin, chiSquaredBin_p = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcChiSquared(x), bin_ids=list(combined_df["bin"]))#, internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))))
         #chiSquaredBin_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: 1-minMaxRatio(x), bins = True, compareWithNull=True)
 
-        # ksTest = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: KsTest(x))
+        #ksTest = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: KsTest(x))
         # ksTestNull_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: KsTest(x), bins = False, compareWithNull=True)
         # ksTestOther_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: KsTest(x), bins = False, compareWithNull=False)
 
-        #customConcentrationValue = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: npConcentrationCoefficient(x))
-        # customConcentrationValueNull_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: npConcentrationCoefficient(x), bins = False, compareWithNull=True)
-        # customConcentrationValueOther_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: npConcentrationCoefficient(x), bins = False, compareWithNull=False)
-        #customConcentrationIntegrateValue = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: npConcentrationCoefficientIntegrate(x))
+        customConcentrationValue = calcMetricOnFullData(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            list(combined_df["demographic_val"]),
+            disp_metric=lambda x: npConcentrationCoefficient(x))
+        customConcentrationValueNull_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: npConcentrationCoefficient(x),
+            bins=False,
+            compareWithNull=True)
+        customConcentrationValueOther_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: npConcentrationCoefficient(x),
+            bins=False,
+            compareWithNull=False)
+        customConcentrationIntegrateValue = calcMetricOnFullData(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            list(combined_df["demographic_val"]),
+            disp_metric=lambda x: npConcentrationCoefficientIntegrate(x))
 
-        # andersonDarling = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcAndersonDarling(x))
-        # andersonDarlingNull_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: calcAndersonDarling(x), bins = False, compareWithNull=True)
-        # andersonDarlingOther_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: calcAndersonDarling(x), bins = False, compareWithNull=False)
+        andersonDarling = calcMetricOnFullData(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            list(combined_df["demographic_val"]),
+            disp_metric=lambda x: calcAndersonDarling(x))
+        andersonDarlingNull_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: calcAndersonDarling(x),
+            bins=False,
+            compareWithNull=True)
+        andersonDarlingOther_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: calcAndersonDarling(x),
+            bins=False,
+            compareWithNull=False)
 
-        # andysMetricBin = calcMetricOnBins(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcAndyDeviation(x), bin_ids=list(combined_df["bin"]), internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))))
-        # andysMetricBinNull_p = bootstrapResampleBoth(combined_df, internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))), disp_metric=lambda x: calcAndyDeviation(x), bins = True, compareWithNull=True)
-        # andysMetricBinOther_p = bootstrapResampleBoth(combined_df, internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))), disp_metric=lambda x: calcAndyDeviation(x), bins = True, compareWithNull=False)
+        andysMetricBin = calcMetricOnBins(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            list(combined_df["demographic_val"]),
+            disp_metric=lambda x: calcAndyDeviation(x),
+            bin_ids=list(combined_df["bin"]),
+            internal_metric=lambda x, y: np.mean(
+                np.abs(np.array(x) - np.array(y))))
+        andysMetricBinNull_p = bootstrapResampleBoth(
+            combined_df,
+            internal_metric=lambda x, y: np.mean(
+                np.abs(np.array(x) - np.array(y))),
+            disp_metric=lambda x: calcAndyDeviation(x),
+            bins=True,
+            compareWithNull=True)
+        andysMetricBinOther_p = bootstrapResampleBoth(
+            combined_df,
+            internal_metric=lambda x, y: np.mean(
+                np.abs(np.array(x) - np.array(y))),
+            disp_metric=lambda x: calcAndyDeviation(x),
+            bins=True,
+            compareWithNull=False)
 
         # crossEntropyBin = calcMetricOnBins(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcCrossEntropy(x), bin_ids=list(combined_df["bin"]), internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))))
         # crossEntropyBinNull_p = bootstrapResampleBoth(combined_df, internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))), disp_metric=lambda x: calcCrossEntropy(x), bins = True, compareWithNull=True)
@@ -276,26 +323,27 @@ def iterateOverData4(dfAllRuns, matches, control, base, tests_run):
             #'concentrationCurveSum': concentrationCurveSum,
             #'concentrationCurveP': concentrationCurve_p
             'ksStat': ksStat,
-            'ksStatP': ksStat_p
+            'ksStatP': ksStat_p,
             #'likelihood': likelihood,
             #'likelihoodP': likelihood_p
             #'JensenShannon': JensenShannon,
             #'JensenShannonP': JensenShannon_p,
             #'chiSquared': chiSquaredBin,
             #'chiSquaredBinP': chiSquaredBin_p,
-            # 'andersonDarling': andersonDarling,
-            # 'andersonDarlingNullP': andersonDarlingNull_p,
-            # 'andersonDarlingOtherP': andersonDarlingOther_p,
-            # 'andysMetricBin': andysMetricBin,
-            # 'andysMetricBinOtherP': andysMetricBinOther_p,
-            # 'andysMetricBinNullP': andysMetricBinNull_p
+            'andersonDarling': andersonDarling,
+            'andersonDarlingNullP': andersonDarlingNull_p,
+            'andersonDarlingOtherP': andersonDarlingOther_p,
+            'andysMetricBin': andysMetricBin,
+            'andysMetricBinOtherP': andysMetricBinOther_p,
+            'andysMetricBinNullP': andysMetricBinNull_p,
             # 'ksTest': ksTest,
             # 'ksTestNullP': ksTestNull_p,
             # 'ksTestOtherP': ksTestOther_p,
-            #'customConcentrationValue': customConcentrationValue,
-            #'customConcentrationIntegrateValue': customConcentrationIntegrateValue
-            # 'customConcentrationValueNullP': customConcentrationValueNull_p,
-            # 'customConcentrationValueOtherP': customConcentrationValueOther_p
+            'customConcentrationValue': customConcentrationValue,
+            'customConcentrationIntegrateValue':
+            customConcentrationIntegrateValue,
+            'customConcentrationValueNullP': customConcentrationValueNull_p,
+            'customConcentrationValueOtherP': customConcentrationValueOther_p
             #'crossEntropyValue': crossEntropyBin,
             #'crossEntropyValueNullP': crossEntropyBinNull_p,
             #'crossEntropyValueOtherP': crossEntropyBinOther_p
@@ -325,6 +373,263 @@ def iterateOverData4(dfAllRuns, matches, control, base, tests_run):
     #names=results_df.columns.names)
     #results_df = results_df.reindex(columns=sorted_columns)
     return results_df
+
+
+def iterateOverData4(dfAllRuns, matches, control, base, tests_run):
+    plot_data = []
+    results = []
+
+    # Loop over all control/outcome/approach combinations
+    for outcome_list in matches:
+        print("\n# DEBUG: Total outcome pairs:", len(matches))
+        print("# DEBUG: Outcome pairs:", matches)
+        #Get a dataframe with columns (pred, true, demographic_val, base) to perform calculations with
+
+        pred_df = _loadApproachColumn2(dfAllRuns, outcome_list[0], 'pred')
+        print("\n# DEBUG: Processing outcome pair:", outcome_list)
+        true_df = _loadApproachColumn2(dfAllRuns, outcome_list[1], 'true')
+        cont_df = _loadApproachColumn2(dfAllRuns, control, 'demographic_val')
+        base_df = _loadApproachColumn2(dfAllRuns, base, 'base')
+
+        cont_bins_df = labelBins(cont_df, 'demographic_val')
+        combined_df = pd.merge(pd.merge(
+            pd.merge(pred_df, base_df, on='Id', how='inner'),
+            cont_bins_df[['Id', 'bin', 'demographic_val']],
+            on='Id',
+            how='inner'),
+                               true_df,
+                               on='Id',
+                               how='inner').dropna()
+        print("# DEBUG: Combined DF shape:", combined_df.shape)
+        print("# DEBUG: Columns in combined DF:", combined_df.columns.tolist())
+        #st.write("new")
+
+        #pred_df = dfAllRuns[[outcome_list[0]
+        #]].rename(columns={outcome_list[0]: "pred"})
+        #st.dataframe(pred_df)
+        #true_df = dfAllRuns[[outcome_list[1]
+        #]].rename(columns={outcome_list[1]: "true"})
+        #st.dataframe(true_df)
+        #cont_df = dfAllRuns[[control
+        #]].rename(columns={control: "demographic_val"})
+        #st.dataframe(cont_df)
+        #combined_df = pd.concat([pred_df, true_df, cont_df], axis=1)
+        #combined_df = combined_df.apply(pd.to_numeric, errors="coerce")
+        #combined_df = combined_df.dropna().reset_index(drop=True)
+
+        #WORKS!!!!!
+        #st.dataframe(combined_df)
+
+        #base_df = _loadApproachColumn(trial_df, baseline[0], baseline[1],
+
+        #Zscore the data if desired
+        if ZSCORE:
+            #st.write("testing Z")
+            combined_df['pred'] = zscore(combined_df['pred'])
+            combined_df['true'] = zscore(combined_df['true'])
+
+        #inverseParityRatio = calcMetricOnBins(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: 1-minMaxRatio(x), bin_ids=list(combined_df["bin"]))
+        #inverseParityRatio_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: 1-minMaxRatio(x), bins = True, compareWithNull=True)
+
+        #CHANGED SLIGHTLY
+        giniCoefficient = calcMetricOnFullData(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            demographics=list(combined_df["bin"]),
+            disp_metric=lambda x: gini_coefficient(x))
+
+        #st.write("gini: ", giniCoefficient)
+        giniCoefficient_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: discreteGiniCoefficient(x),
+            bins=False,
+            compareWithNull=True)
+        #st.write("gini p: ", giniCoefficient_p)
+
+        #concentrationCurveSum = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: npConcentrationCoefficient(x)[0])
+        #concentrationCurve_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: npConcentrationCoefficient(x)[0], bins = False, compareWithNull=False)
+
+        absolute_diff = [
+            abs(a - b) for a, b in zip(list(combined_df["pred"]),
+                                       list(combined_df["true"]))
+        ]
+
+        #st.write("abs diff", absolute_diff)
+        sorted_values = [
+            v for _, v in sorted(
+                zip(list(combined_df["demographic_val"]), absolute_diff))
+        ]
+        #st.write("sorted vals", sorted_values)
+
+        #cumulative_share_of_population = np.linspace(0, 1, len(combined_df)+1)
+        ksStat, ksStat_p = kstest(sorted_values, uniform.cdf, args=(0, 1))
+
+        ksStat = calcMetricOnFullData(list(combined_df["pred"]),
+                                      list(combined_df["true"]),
+                                      list(combined_df["demographic_val"]),
+                                      disp_metric=lambda x: KsTest(x))
+        ksStat_p = bootstrapResampleBoth(combined_df,
+                                         disp_metric=lambda x: KsTest(x),
+                                         bins=False,
+                                         compareWithNull=True)
+
+        #likelihood = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcLikelihood(x))
+        #likelihood_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: calcLikelihood(x), bins = False, compareWithNull=False)
+
+        #JensenShannon = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcJensenShannon(x))
+        #JensenShannon_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: calcJensenShannon(x), bins = False, compareWithNull=False)
+
+        #chiSquared = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcChiSquared(x))
+        #chiSquared_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: calcChiSquared(x), bins = False, compareWithNull=False)
+        #chiSquaredBin, chiSquaredBin_p = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcChiSquared(x), bin_ids=list(combined_df["bin"]))#, internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))))
+        #chiSquaredBin_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: 1-minMaxRatio(x), bins = True, compareWithNull=True)
+
+        #ksTest = calcMetricOnFullData(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: KsTest(x))
+        # ksTestNull_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: KsTest(x), bins = False, compareWithNull=True)
+        # ksTestOther_p = bootstrapResampleBoth(combined_df, disp_metric=lambda x: KsTest(x), bins = False, compareWithNull=False)
+
+        customConcentrationValue = calcMetricOnFullData(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            list(combined_df["demographic_val"]),
+            disp_metric=lambda x: npConcentrationCoefficient(x))
+        customConcentrationValueNull_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: npConcentrationCoefficient(x),
+            bins=False,
+            compareWithNull=True)
+        customConcentrationValueOther_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: npConcentrationCoefficient(x),
+            bins=False,
+            compareWithNull=False)
+        customConcentrationIntegrateValue = calcMetricOnFullData(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            list(combined_df["demographic_val"]),
+            disp_metric=lambda x: npConcentrationCoefficientIntegrate(x))
+
+        andersonDarling = calcMetricOnFullData(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            list(combined_df["demographic_val"]),
+            disp_metric=lambda x: calcAndersonDarling(x))
+        andersonDarlingNull_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: calcAndersonDarling(x),
+            bins=False,
+            compareWithNull=True)
+        andersonDarlingOther_p = bootstrapResampleBoth(
+            combined_df,
+            disp_metric=lambda x: calcAndersonDarling(x),
+            bins=False,
+            compareWithNull=False)
+
+        andysMetricBin = calcMetricOnBins(
+            list(combined_df["pred"]),
+            list(combined_df["true"]),
+            list(combined_df["demographic_val"]),
+            disp_metric=lambda x: calcAndyDeviation(x),
+            bin_ids=list(combined_df["bin"]),
+            internal_metric=lambda x, y: np.mean(
+                np.abs(np.array(x) - np.array(y))))
+        andysMetricBinNull_p = bootstrapResampleBoth(
+            combined_df,
+            internal_metric=lambda x, y: np.mean(
+                np.abs(np.array(x) - np.array(y))),
+            disp_metric=lambda x: calcAndyDeviation(x),
+            bins=True,
+            compareWithNull=True)
+        andysMetricBinOther_p = bootstrapResampleBoth(
+            combined_df,
+            internal_metric=lambda x, y: np.mean(
+                np.abs(np.array(x) - np.array(y))),
+            disp_metric=lambda x: calcAndyDeviation(x),
+            bins=True,
+            compareWithNull=False)
+
+        # crossEntropyBin = calcMetricOnBins(list(combined_df["pred"]), list(combined_df["true"]), list(combined_df["demographic_val"]), disp_metric=lambda x: calcCrossEntropy(x), bin_ids=list(combined_df["bin"]), internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))))
+        # crossEntropyBinNull_p = bootstrapResampleBoth(combined_df, internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))), disp_metric=lambda x: calcCrossEntropy(x), bins = True, compareWithNull=True)
+        # crossEntropyBinOther_p = bootstrapResampleBoth(combined_df, internal_metric=lambda x, y: np.mean(np.abs(np.array(x) - np.array(y))), disp_metric=lambda x: calcCrossEntropy(x), bins = True, compareWithNull=False)
+
+        correlation = calculateCorrelation(combined_df[["true", "pred"]])
+        #st.write("corr", correlation)
+
+        #binCorrelations = calcMetricOnBins(list(combined_df["pred"]),
+        #list(combined_df["true"]),
+        #list(
+        #combined_df["demographic_val"]),
+        #disp_metric=lambda x: x,
+        #bin_ids=list(combined_df["bin"]))
+
+        #Save results to a dictionary
+        result = {
+            'control': control,
+            'outcome': outcome_list[0],
+            #'approach': approach
+            #'binCorrelations' : binCorrelations,
+            #'inverseParity':inverseParityRatio,
+            #'inverseParityP': inverseParityRatio_p,
+            'giniCoefficient': giniCoefficient,
+            'giniCoefficientP': giniCoefficient_p,
+            #'concentrationCurveAbs': concentrationCurveAbs,
+            #'concentrationCurveSum': concentrationCurveSum,
+            #'concentrationCurveP': concentrationCurve_p
+            'ksStat': ksStat,
+            'ksStatP': ksStat_p,
+            #'likelihood': likelihood,
+            #'likelihoodP': likelihood_p
+            #'JensenShannon': JensenShannon,
+            #'JensenShannonP': JensenShannon_p,
+            #'chiSquared': chiSquaredBin,
+            #'chiSquaredBinP': chiSquaredBin_p,
+            'andersonDarling': andersonDarling,
+            'andersonDarlingNullP': andersonDarlingNull_p,
+            'andersonDarlingOtherP': andersonDarlingOther_p,
+            'andysMetricBin': andysMetricBin,
+            'andysMetricBinOtherP': andysMetricBinOther_p,
+            'andysMetricBinNullP': andysMetricBinNull_p,
+            # 'ksTest': ksTest,
+            # 'ksTestNullP': ksTestNull_p,
+            # 'ksTestOtherP': ksTestOther_p,
+            'customConcentrationValue': customConcentrationValue,
+            'customConcentrationIntegrateValue':
+            customConcentrationIntegrateValue,
+            'customConcentrationValueNullP': customConcentrationValueNull_p,
+            'customConcentrationValueOtherP': customConcentrationValueOther_p
+            #'crossEntropyValue': crossEntropyBin,
+            #'crossEntropyValueNullP': crossEntropyBinNull_p,
+            #'crossEntropyValueOtherP': crossEntropyBinOther_p
+        }
+        results.append({**result, **correlation})
+        plot_data.append((combined_df, control, outcome_list[0]))
+        print("# DEBUG: Number of charts queued so far:", len(plot_data))
+
+        #print(approach)
+        #print(control, outcome)
+
+    #st.write("plot data", plot_data)
+
+    #Run code to generate plots
+    makePlotGrid2(plot_data)
+    #makePlotGrid(plot_data)
+    print("# DEBUG: Final number of charts:", len(plot_data))
+
+    #Save all those results dictionaries we created into a pandas dataframe
+    results_df = pd.DataFrame(results)
+    #results_df = results_df.pivot_table(index=['control', 'outcome'],
+    #columns=['approach'],
+    #values=None,
+    #aggfunc='first')
+    #level1, level2 = results_df.columns.levels
+    #level2_sorted = sorted(level2,
+    #key=lambda x: approachesToRun.index(x)
+    #if x in approachesToRun else float('inf'))
+    #sorted_columns = pd.MultiIndex.from_product([level1, level2_sorted],
+    #names=results_df.columns.names)
+    #results_df = results_df.reindex(columns=sorted_columns)
+    return results_df
+    print("# DEBUG: Final results_df shape:", results_df.shape)
 
 
 def iterateOverData(dfAllRuns):
@@ -518,7 +823,8 @@ def round_to_2_sig_figs(x):
 
 #Make grid of plots based on prediction data
 def makePlotGrid(plot_data):
-    plotTypes = 1
+    plotTypes = 4
+    #plotTypes = 2
 
     # Determine grid size
     n_cols = len(approachesToRun) * plotTypes  # Number of columns in the grid
@@ -536,6 +842,7 @@ def makePlotGrid(plot_data):
 
     # Plot all scatterplots
     for i, (combined_df, control, outcome) in enumerate(plot_data):
+        idx = i * plotTypes
 
         row_index = plotTypes * i
         palette = sns.color_palette("deep",
@@ -543,12 +850,17 @@ def makePlotGrid(plot_data):
         #st.write("bins?")
         unique_bins = sorted(
             combined_df["bin"].unique())  # Ensure consistent ordering
-        plotConcentrationCurve(axes[plotTypes * i], combined_df, control,
-                               outcome)
+
+        plotConcentrationCurve(axes[idx], combined_df, control, outcome)
         #st.write("yes")
-        #plotKSCurve(axes[plotTypes * i], combined_df, control, outcome, approach)
-        #plotScatterplot(axes[row_index], combined_df, control, outcome, approach, palette, unique_bins)
-        #plotScatterplotPredVsTrues(axes[row_index + 1], combined_df, control, outcome, approach, palette, unique_bins)
+        plotKSCurve(axes[idx + 1], combined_df, control, outcome)
+
+        #st.write("ks")
+        plotScatterplot(axes[idx + 2], combined_df, control, outcome, palette,
+                        unique_bins)
+        #st.write("s1")
+        plotScatterplotPredVsTrues(axes[idx + 3], combined_df, control,
+                                   outcome, palette, unique_bins)
 
         # Compute x position for the middle of both plots
         #mid_x = (axes[row_index].get_position().x0 + axes[row_index + 1].get_position().x1) / 2
@@ -572,20 +884,22 @@ def makePlotGrid(plot_data):
         #     )
 
     #Hide unused axes
-    for j in range(len(plot_data), len(axes)):
-        axes[j].axis('off')
+    st.write(len(plot_data))
+    if (len(plot_data) == 1):
+        for j in range(2 * plotTypes):
+            axes[len(axes) - j - 1].axis('off')
 
     # Add a single legend for the whole figure
     #handles, labels = axes[0].get_legend_handles_labels()
     #fig.legend(handles, labels, title="bin", loc="upper right")
 
     # Save the figure
+    plt.tight_layout()
     fig.savefig("aiFairnessPipeline/ConcentrationCurve.png", dpi=300)
 
 
 #Plot Scatterplot with loess curve
-def plotScatterplot(ax, combined_df, control, outcome, approach, palette,
-                    unique_bins):
+def plotScatterplot(ax, combined_df, control, outcome, palette, unique_bins):
 
     combined_df["error"] = abs(combined_df["pred"] - combined_df["true"])
 
@@ -631,13 +945,13 @@ def plotScatterplot(ax, combined_df, control, outcome, approach, palette,
     # Format tick labels to two decimal places
     ax.yaxis.set_major_formatter(
         mticker.FuncFormatter(lambda y, _: round_to_2_sig_figs(y)))
-    ax.set_xlabel(cleanNames[control], labelpad=-1)
+    ax.set_xlabel(control, labelpad=-1)
     ax.set_ylabel('Absolute Error', labelpad=-3)
 
 
 #Plot scatterplot with axes true vs model prediction for each datapoint
-def plotScatterplotPredVsTrues(ax, combined_df, control, outcome, approach,
-                               palette, unique_bins):
+def plotScatterplotPredVsTrues(ax, combined_df, control, outcome, palette,
+                               unique_bins):
 
     # Compute percentiles for trimming
     x_min, x_max = combined_df["pred"].quantile([0.025, 0.975])
@@ -744,8 +1058,160 @@ def plotConcentrationCurve(ax, combined_df, control, outcome, absolute=False):
     ax.legend()
 
 
+def makePlotGrid2(plot_data):
+
+    CHART_WIDTH = 6
+    CHART_HEIGHT = 6
+    SET_SPACING = 2.5
+    CHART_SPACING = 0.3
+    TITLE_SPACING = 0.8
+
+    plotTypes = 4
+
+    import streamlit as st
+
+    #for i, (df, control, outcome) in enumerate(plot_data):
+    #st.write(f"  Item {i}: {control} vs {outcome} (df shape: {df.shape})")
+
+    unique_pairs = []
+    seen_pairs = set()
+    for df, control, outcome in plot_data:
+        pair_key = (control, outcome)
+        if pair_key not in seen_pairs:
+            unique_pairs.append((df, control, outcome))
+            seen_pairs.add(pair_key)
+
+    num_sets = len(unique_pairs)
+
+    if num_sets == 0:
+        st.error("No unique pairs found in plot_data")
+        return
+
+    n_cols = plotTypes
+    n_rows = num_sets
+
+    fig_width = n_cols * CHART_WIDTH + (n_cols - 1) * CHART_SPACING
+    base_height = n_rows * CHART_HEIGHT + (
+        n_rows - 1) * SET_SPACING + n_rows * TITLE_SPACING
+
+    fig_height = base_height + (n_rows * 1.5)
+
+    #st.write(f"Figure dimensions: {fig_width:.1f} x {fig_height:.1f} for {n_rows} rows x {n_cols} cols")
+
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(fig_width, fig_height))
+
+    if n_rows == 1:
+        axes = axes.reshape(1, -1)
+        fig_height += 102
+
+    wspace = max(CHART_SPACING / CHART_WIDTH, 0.25)
+    hspace = (SET_SPACING + TITLE_SPACING) / CHART_HEIGHT
+    if n_rows > 2:
+        hspace *= 1.5
+
+    plt.subplots_adjust(wspace=wspace, hspace=hspace)
+
+    for set_idx, (combined_df, control, outcome) in enumerate(unique_pairs):
+        try:
+            #st.write(f"Processing Set {set_idx + 1}: {control} vs {outcome}")
+
+            if set_idx >= num_sets:
+                st.write(
+                    f"Skipping set {set_idx + 1} - exceeds num_sets ({num_sets})"
+                )
+                break
+
+            set_title = f"Set {set_idx + 1}: {control} vs {outcome}"
+
+            fig.text(0.5,
+                     1 -
+                     (set_idx * (CHART_HEIGHT + SET_SPACING + TITLE_SPACING) +
+                      TITLE_SPACING / 2) / fig_height,
+                     set_title,
+                     ha='center',
+                     va='center',
+                     fontsize=14,
+                     fontweight='bold')
+
+            palette = sns.color_palette("deep", n_colors=3)
+            unique_bins = sorted(combined_df["bin"].unique())
+
+            #BCI
+            ax1 = axes[set_idx, 0]
+            plotConcentrationCurve(ax1, combined_df, control, outcome)
+            ax1.text(0.02,
+                     0.02,
+                     f"Row {set_idx+1}: {outcome}",
+                     transform=ax1.transAxes,
+                     fontsize=8,
+                     bbox=dict(boxstyle="round,pad=0.3",
+                               facecolor="yellow",
+                               alpha=0.7))
+
+            #KS Test
+            ax2 = axes[set_idx, 1]
+            plotKSCurve(ax2, combined_df, control, outcome)
+            ax2.text(0.02,
+                     0.02,
+                     f"Row {set_idx+1}: {outcome}",
+                     transform=ax2.transAxes,
+                     fontsize=8,
+                     bbox=dict(boxstyle="round,pad=0.3",
+                               facecolor="yellow",
+                               alpha=0.7))
+
+            #Prediction Error
+            ax3 = axes[set_idx, 2]
+            plotScatterplot(ax3, combined_df, control, outcome, palette,
+                            unique_bins)
+            ax3.text(0.02,
+                     0.02,
+                     f"Row {set_idx+1}: {outcome}",
+                     transform=ax3.transAxes,
+                     fontsize=8,
+                     bbox=dict(boxstyle="round,pad=0.3",
+                               facecolor="yellow",
+                               alpha=0.7))
+
+            #True vs Predicted
+            ax4 = axes[set_idx, 3]
+            plotScatterplotPredVsTrues(ax4, combined_df, control, outcome,
+                                       palette, unique_bins)
+            ax4.text(0.02,
+                     0.02,
+                     f"Row {set_idx+1}: {outcome}",
+                     transform=ax4.transAxes,
+                     fontsize=8,
+                     bbox=dict(boxstyle="round,pad=0.3",
+                               facecolor="yellow",
+                               alpha=0.7))
+
+        except Exception as e:
+            st.error(
+                f"ERROR processing Set {set_idx + 1} ({control} vs {outcome}): {str(e)}"
+            )
+            import traceback
+            st.code(traceback.format_exc())
+
+    outcome_list = [outcome for _, _, outcome in unique_pairs]
+    #footer_text = f"Processed {num_sets} sets: " + " | ".join([f"{i+1}: {outcome.split('__')[0]}" for i, outcome in enumerate(outcome_list)])
+    #footer_text += f" | Bottom of image visible "
+
+    #fig.text(0.5, 0.01, footer_text, ha='center', va='bottom', fontsize=10,
+    #bbox=dict(boxstyle="round,pad=0.5", facecolor="lightblue", alpha=0.8))
+
+    plt.subplots_adjust(top=0.95, bottom=0.08, left=0.05, right=0.95)
+
+    plt.savefig("aiFairnessPipeline/ConcentrationCurve.png",
+                dpi=300,
+                bbox_inches='tight',
+                facecolor='white',
+                edgecolor='none')
+    plt.close()
+
+
 #Plot the lorenz curve with ks dotted line
-def plotKSCurve(ax, combined_df, control, outcome, approach, absolute=False):
+def plotKSCurve(ax, combined_df, control, outcome, absolute=False):
 
     ypreds = combined_df["pred"]
     ytrues = combined_df["true"]
